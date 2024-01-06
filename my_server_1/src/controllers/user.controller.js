@@ -4,6 +4,7 @@ import {ApiError} from '../utils/ApiError.js'
 import {UploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 const registerUser = asyncHandler(async (req, res) => {
+
     // TODO: Implement registerUser controller steps
     // * Step-1 Get the user data; 
     // * step-2 Check if the user already exists in the database or it is not empty ( check with username and email)
@@ -22,11 +23,12 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400 , "Please provide all the fields")
     }
 
-   const existedUser =  User.findOne({$or:[{username} , {email}]})
+   const existedUser =  await User.findOne({$or:[{username} , {email}]})
 
     if(existedUser){
         throw new ApiError(409 , "User already exists")
     }
+    
    const avatarLocalPath =  req.files?.avatar?.[0]?.path
    const coverImageLocalPath =  req.files?.coverImage?.[0]?.path
 
@@ -42,7 +44,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.create({
-        username:username.toLowerCase(),
+        username:username?.toLowerCase(),
         email,
         fullname,
         password,
@@ -60,9 +62,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     
 
-    return (
-    new ApiResponse(201 , user , "User created successfully")
-    )
+    return res.status(201).json(new ApiResponse(201 , createdUser , "User created successfully🔥"))
 
 })
 
